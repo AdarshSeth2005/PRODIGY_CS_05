@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Educational Packet Sniffer Simulator</title>
+<link rel="stylesheet" href="CS2.css"
+<style>
+  
+  
+</style>
+</head>
+<body>
+<header>
+  <h1>Educational Packet Sniffer Simulator</h1>
+  <p><em>THIS TOOL IS FOR ETHICAL EDUCATION PURPOSES ONLY</em></p>
+</header>
+<main>
+  <section class="controls" aria-label="Packet Input Controls">
+    <div class="input-container">
+      <label for="packetInput">Input packet data (JSON array of packets):</label>
+      <textarea id="packetInput" placeholder='Paste a JSON array of packets here'></textarea>
+    </div>
+    <div class="buttons" role="group" aria-label="Action Buttons">
+      <button id="loadSampleBtn" title="Load sample packet data">Load Sample</button>
+      <button id="parseBtn" title="Parse and display packets">Parse</button>
+      <button id="clearBtn" title="Clear input and table">Clear</button>
+    </div>
+  </section>
+  <section aria-label="Captured Packets Table">
+    <table id="packetsTable" role="table" aria-describedby="tableDesc">
+      <caption id="tableDesc">
+        THIS CONTAIN SOURCE,DESTINATION IP ADDRESS,PROTOCOL AND PAYLOAD DATA FOR THE GIVEN PACKET
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Source IP</th>
+          <th scope="col">Destination IP</th>
+          <th scope="col">Protocol</th>
+          <th scope="col">Payload Data</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+<footer>
+  &copy; 2025 CREATED FOR EDUCATION PURPOSE ONLY.
+</footer>
+<script>
+  (() => {
+    const packetInput = document.getElementById('packetInput');
+    const loadSampleBtn = document.getElementById('loadSampleBtn');
+    const parseBtn = document.getElementById('parseBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const packetsTableBody = document.querySelector('#packetsTable tbody');
+
+    
+    const samplePackets = [
+      {
+        src_ip: "192.168.0.15",
+        dst_ip: "172.217.10.46",
+        protocol: "TCP",
+        payload: "GET /index.html HTTP/1.1\\r\\nHost: example.com"
+      },
+      {
+        src_ip: "10.10.5.27",
+        dst_ip: "10.10.5.100",
+        protocol: "UDP",
+        payload: "DNS Query for www.example.org"
+      },
+      {
+        src_ip: "192.168.0.50",
+        dst_ip: "192.168.0.1",
+        protocol: "ICMP",
+        payload: "Echo (ping) request"
+      },
+      {
+        src_ip: "172.16.1.5",
+        dst_ip: "172.16.1.10",
+        protocol: "HTTP",
+        payload: "POST /login HTTP/1.1\\r\\nContent-Length: 150"
+      }
+    ];
+
+    
+    function clearTable() {
+      packetsTableBody.innerHTML = '';
+    }
+
+    
+    function isValidPacket(pkt) {
+      if (!pkt) return false;
+      return typeof pkt.src_ip === 'string' &&
+             typeof pkt.dst_ip === 'string' &&
+             typeof pkt.protocol === 'string' &&
+             typeof pkt.payload === 'string';
+    }
+
+    function renderPackets(packets) {
+      clearTable();
+      packets.forEach((pkt, i) => {
+        
+        if (!isValidPacket(pkt)) return;
+
+        const tr = document.createElement('tr');
+
+        
+        const tdIdx = document.createElement('td');
+        tdIdx.textContent = i + 1;
+        tr.appendChild(tdIdx);
+
+        
+        const tdSrc = document.createElement('td');
+        tdSrc.textContent = pkt.src_ip;
+        tr.appendChild(tdSrc);
+
+        
+        const tdDst = document.createElement('td');
+        tdDst.textContent = pkt.dst_ip;
+        tr.appendChild(tdDst);
+
+        
+        const tdProto = document.createElement('td');
+        const protocolUpper = pkt.protocol.toUpperCase();
+        tdProto.textContent = protocolUpper;
+        tdProto.className = 'protocol-' + protocolUpper;
+        tr.appendChild(tdProto);
+
+        
+        const tdPayload = document.createElement('td');
+        tdPayload.className = 'payload';
+        tdPayload.textContent = pkt.payload;
+        tr.appendChild(tdPayload);
+
+        packetsTableBody.appendChild(tr);
+      });
+    }
+
+    loadSampleBtn.addEventListener('click', () => {
+      packetInput.value = JSON.stringify(samplePackets, null, 2);
+      clearTable();
+    });
+
+    parseBtn.addEventListener('click', () => {
+      const inputText = packetInput.value.trim();
+      if (!inputText) {
+        alert('Please input some packet data in JSON array format.');
+        return;
+      }
+      let packets;
+      try {
+        packets = JSON.parse(inputText);
+        if (!Array.isArray(packets)) {
+          alert('Input data must be a JSON array of packet objects.');
+          return;
+        }
+        renderPackets(packets);
+      } catch(e) {
+        alert('Invalid JSON format. Please check your input.');
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      packetInput.value = '';
+      clearTable();
+    });
+  })();
+</script>
+</body>
+</html>
+
